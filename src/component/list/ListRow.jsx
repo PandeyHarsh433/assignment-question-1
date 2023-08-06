@@ -1,7 +1,11 @@
 import styles from "./ListRow.module.css";
 
-const ListCell = ({ children }) => {
-  return <tr className={styles.cell}>{children}</tr>;
+const ListRow = ({ children, onClick }) => {
+  return (
+    <tr className={styles.cell} onClick={onClick}>
+      {children}
+    </tr>
+  );
 };
 
-export default ListCell;
+export default ListRow;

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 // Data
 import mockData from "../assets/data.json";
@@ -17,13 +17,43 @@ import Card from "../component/card/Card";
 const Dashboard = () => {
   const [currency, setCurrency] = useState("EUR");
   const [searchText, setSearchText] = useState("");
-  const [selectedOrderDetails, setSelectedOrderDetails] = useState({});
-  const [selectedOrderTimeStamps, setSelectedOrderTimeStamps] = useState({});
+  const [currentOrder, setCurrentOrder] = useState({});
+  const [currentTimeStamp, setCurrentTimeStamp] = useState({});
+  const [filteredRows, setFilteredRows] = useState(mockData.results);
+
+
+  const handleRowClick = (row, matchedTimeStamp) => {
+    setCurrentOrder(row);
+    setCurrentTimeStamp(matchedTimeStamp);
+  };
+
+  useEffect(() => {
+    console.log(currentOrder);
+    console.log(currentTimeStamp);
+  }, [currentOrder, currentTimeStamp]);
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (searchText) {
+        const filteredData = mockData.results.filter((row) =>
+          row["&id"].toLowerCase().includes(searchText.toLowerCase())
+        );
+        setFilteredRows(filteredData);
+      } else {
+        setFilteredRows(mockData.results);
+      }
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchText]);
 
   return (
     <div>
       <div className={styles.header}>
-        <HeaderTitle primaryTitle="Orders" secondaryTitle="5 orders" />
+        <HeaderTitle
+          primaryTitle="Orders"
+          secondaryTitle={`${mockData.header.returnedHits} orders`}
+        />
         <div className={styles.actionBox}>
           <Search
             value={searchText}
@@ -39,15 +69,19 @@ const Dashboard = () => {
       <div className={styles.content}>
         <div className={styles.section}>
           <Card
-            cardData={selectedOrderDetails}
             title="Selected Order Details"
+            data={currentOrder.executionDetails}
           />
           <Card
-            cardData={selectedOrderTimeStamps}
             title="Selected Order Timestamps"
+            data={currentTimeStamp.timestamps}
           />
         </div>
-        <List rows={mockData.results} />
+        <List
+          rows={filteredRows}
+          timeStamp={timestamps.results}
+          onRowClick={handleRowClick}
+        />
       </div>
     </div>
   );
